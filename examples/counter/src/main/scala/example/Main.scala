@@ -3,13 +3,13 @@ package example
 import org.scalajs.dom.document
 import tyrian.Html
 import tyrian.Html._
-import tyrian.Tyrian
+import tyrian.debugger.Debugger
 
 object Main:
   opaque type Model = Int
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view)
+    Debugger.start(document.getElementById("myapp"), init, update, view)
 
   def init: Model = 0
 
