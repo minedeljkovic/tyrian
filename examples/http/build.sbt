@@ -10,8 +10,9 @@ lazy val root = (project in file("."))
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core",
-      "io.circe" %%% "circe-parser"
-    ).map(_ % "0.14.0-M7"),
+      "io.circe" %%% "circe-parser",
+      "io.circe" %%% "circe-generic"
+    ).map(_ % "0.14.1"),
     scalafixOnCompile                       := true,
     semanticdbEnabled                       := true,
     semanticdbVersion                       := scalafixSemanticdb.revision

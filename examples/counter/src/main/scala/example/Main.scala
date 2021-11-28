@@ -4,12 +4,13 @@ import org.scalajs.dom.document
 import tyrian.Html
 import tyrian.Html._
 import tyrian.debugger.Debugger
+import tyrian.debugger.DebuggerOptions
 
 object Main:
   opaque type Model = Int
 
   def main(args: Array[String]): Unit =
-    Debugger.start(document.getElementById("myapp"), init, update, view)
+    Debugger.start(document.getElementById("myapp"), init, update, view, DebuggerOptions(msgToCompactString = _.showCompact))
 
   def init: Model = 0
 
@@ -27,3 +28,9 @@ object Main:
 
 enum Msg:
   case Increment, Decrement
+  
+  def showCompact: String =
+    this match
+      case Increment => "Increment"
+      case Decrement => "Decrement"
+end Msg

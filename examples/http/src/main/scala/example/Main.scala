@@ -1,10 +1,17 @@
 package example
 
 import cats.syntax.either._
+import io.circe._
+import io.circe.generic.semiauto._
 import io.circe.parser._
+import io.circe.scalajs._
 import org.scalajs.dom.document
 import tyrian.Html._
 import tyrian._
+import tyrian.debugger.Debugger
+import tyrian.debugger.DebuggerOptions
+import tyrian.debugger.DebuggerSerialize
+import tyrian.debugger.ShowCompact
 import tyrian.http._
 
 object Main:
@@ -30,7 +37,42 @@ object Main:
     Sub.Empty
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
+    Debugger.start(
+      document.getElementById("myapp"),
+      init,
+      update,
+      view,
+      subscriptions,
+      DebuggerOptions(
+        msgToCompactString = _.showCompact,
+        serialize = Some(
+          DebuggerSerialize(
+            encodeModel = _.asJsAny,
+            decodeModel = jsAny => decodeJs[Model](jsAny),
+            encodeMsg = _.asJsAny,
+            decodeMsg = jsAny => decodeJs[Msg](jsAny)
+          )
+        ),
+        sanitizeMsg = {
+          case Msg.GifError(HttpError.DecodingFailure(_, response)) => Msg.GifError(HttpError.DecodingFailure("foo", response))
+        },
+        sanitizeModel = m => m.copy(topic = "bar")
+      )
+    )
+
+  given Encoder[Response[String]] = deriveEncoder
+  given Decoder[Response[String]] = deriveDecoder
+  given Encoder[HttpError]        = deriveEncoder
+  given Decoder[HttpError]        = deriveDecoder
+  given Encoder[Msg]              = deriveEncoder
+  given Decoder[Msg]              = deriveDecoder
+  given Encoder[Model]            = deriveEncoder
+  given Decoder[Model]            = deriveDecoder
+
+  given ShowCompact[Status]                        = ShowCompact.derived
+  given [A: ShowCompact]: ShowCompact[Response[A]] = ShowCompact.derived
+  given ShowCompact[HttpError]                     = ShowCompact.derived
+  given ShowCompact[Msg]                           = ShowCompact.derived
 
 end Main
 
@@ -54,7 +96,9 @@ object HttpHelper:
         .flatMap { json =>
           json.hcursor
             .downField("data")
-            .get[String]("image_url")
+            .downField("images")
+            .downField("fixed_height")
+            .get[String]("url")
             .toOption
             .toRight("wrong json format")
         }

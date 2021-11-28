@@ -5,7 +5,8 @@ import tyrian.Cmd
 import tyrian.Html
 import tyrian.Html._
 import tyrian.Sub
-import tyrian.Tyrian
+import tyrian.debugger.Debugger
+import tyrian.debugger.DebuggerOptions
 
 import scalajs.js
 import concurrent.duration.DurationInt
@@ -42,6 +43,6 @@ object Clock:
     Sub.every(1.second, "clock-ticks").map(Msg.apply)
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
+    Debugger.start(document.getElementById("myapp"), init, update, view, subscriptions, DebuggerOptions())
 
 final case class Msg(newTime: js.Date)
